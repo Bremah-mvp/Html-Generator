@@ -173,7 +173,7 @@ init = () => {
       type: "input",
       name: "officeNumber",
       message: "This team's office number?",
-      default : "1"
+     default : "1"
 
     }
   ])
