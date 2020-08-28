@@ -1,231 +1,86 @@
-const Manager = require("./lib/Manager");
-const Engineer = require("./lib/Engineer");
-const Intern = require("./lib/Intern");
+// module requirements
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
 
+// js file requirements
+const Manager = require("./lib/Manager");
+const Engineer = require("./lib/Engineer");
+const Intern = require("./lib/Intern");
+const questions = require("./lib/questions");
+const render = require("./lib/htmlRenderer");
+
+// output variables
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-const render = require("./lib/htmlRenderer");
-const { inherits } = require("util");
-const employeeList = [];
+// employees array to hold team members as we build them
+const employees = [];
 
-buildEngineer = () => {
+// empty employee object to hold answers
+let employee = {};
 
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "name",
-      message: "Please provide engineer's name."
-    },
-    {
-      type: "input",
-      name: "id",
-      message: "Engineer's ID#?"
-    },
-    {
-      type: "input",
-      name: "email",
-      message: "Engineer's email address?",
-    },
-    {
-      type: "input",
-      name: "github",
-      message: "Engineer's GitHub username?"
-
-    }
-  ])
-    .then(results => {
-      results.role = "Engineer";
-
-      const { name, id, email, github, role } = results;
-
-      const newEmployee = new Engineer(name, id, email, github, role)
-
-      employeeList.push(newEmployee);
-
-      console.log(`\n${name} has been added!\n`);
-
-      inquirer.prompt({
-        type: "list",
-        name: "addAnother",
-        message: "Would you like to add another employee?",
-        choices: [
-          'YES',
-          "NO"
-        ]
-      })
-        .then(choice => {
-          if (choice.addAnother === 'YES') {
-            buildEmployeeList();;
-          } else {
-            exitQuestions();
-          }
-        })
-    });
-
-}
-
-buildIntern = () => {
-
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "name",
-      message: "Please provide intern's name."
-    },
-    {
-      type: "input",
-      name: "id",
-      message: "Intern's ID#?"
-    },
-    {
-      type: "input",
-      name: "email",
-      message: "Intern's email address?",
-    },
-    {
-      type: "input",
-      name: "school",
-      message: "Intern's school?"
-
-    }
-  ])
-    .then(results => {
-      results.role = "Intern";
-
-      const { name, id, email, school, role } = results;
-
-      const newEmployee = new Intern(name, id, email, school, role)
-
-      employeeList.push(newEmployee);
-
-      console.log(`\n${name} has been added!\n`);
-
-      inquirer.prompt({
-        type: "list",
-        name: "addAnother",
-        message: "Would you like to add another employee?",
-        choices: [
-          'YES',
-          "NO"
-        ]
-      })
-        .then(choice => {
-          if (choice.addAnother === 'YES') {
-            buildEmployeeList();;
-          } else {
-            exitQuestions();
-          }
-        })
-    });
-
-}
-
-buildEmployeeList = () => {
-
-  inquirer.prompt({
-    type: "list",
-    name: "employeeType",
-    message: "Choose employee type",
-    choices: [
-      'Engineer',
-      'Intern'
-    ]
-  })
-    .then(choice => {
-      if (choice.employeeType === 'Engineer') {
-        buildEngineer();
-      } else {
-        buildIntern();
-      }
+// function driving the UX
+const startPromps = () => {
+    // prompting user to choose: "manager", "engineer", "intern", or "done!"
+    return inquirer.prompt(questions.startQ).then((empRole) => {
+        employee['role'] = empRole.role;
+        // if they choose "Done!"
+        if (empRole.role === "Done!") {
+            // their team page will be rendered
+            const teamPage = render(employees);
+            // and written to the output folder
+            fs.writeFile(outputPath, teamPage, (err) => {
+                if (err) throw err;
+                // sign off message
+                console.log("Successfully generated your Team Page Html! You will find it in the output folder under 'team.html'.");
+            })
+        // otherwise...
+        } else {
+            // they will be prompted by the general employee questions
+            return inquirer.prompt(questions.employeeQ).then((empAns) => {
+                employee['name'] = empAns.name;
+                employee['id'] = empAns.id;
+                employee['email'] = empAns.email;
+                // with add-on questions for each employee role
+                if (empRole.role === "Manager") {
+                    return inquirer.prompt(questions.managerQ).then((mgrAns) => {
+                        employee['officeNumber'] = mgrAns.officeNumber;
+                        // creating a new Manager from employee information
+                        employees.push(new Manager(employee.name, employee.id, employee.email, employee.officeNumber));
+                        startPromps();
+                    })
+                } if (empRole.role === "Engineer") {
+                    return inquirer.prompt(questions.engineerQ).then((engAns) => {
+                        employee['github'] = engAns.github;
+                        // creating a new Engineer from employee information
+                        employees.push(new Engineer(employee.name, employee.id, employee.email, employee.github));
+                        startPromps();
+                    })
+                } if (empRole.role === "Intern") {
+                    return inquirer.prompt(questions.internQ).then((intAns) => {
+                        employee['school'] = intAns.school;
+                        // creating a new Intern from employee information
+                        employees.push(new Intern(employee.name, employee.id, employee.email, employee.school));
+                        startPromps();
+                    })
+                }
+            })
+        }
     })
-
 };
 
+async function init() {
+    // welcoming user
+    console.log("Hi there! Welcome to Aiden's HTML Generator. Please follow the prompts to generate an html file displaying your team!")
+    try {
+        // starting the prompts!
+        await startPromps();
 
-init = () => {
-  console.log("\nBuild your empoyee page now!");
-  console.log("Answer the following questions and your good to go.\n");
-
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "name",
-      message: "Please provide Manager's name.",
-      default : "fistname and lastname"
-    },
-    {
-      type: "input",
-      name: "id",
-      message: "Manager's ID#?",
-      default : "123"
-    },
-    {
-      type: "input",
-      name: "email",
-      message: "Manager's email address?",
-     
-    },
-    {
-      type: "input",
-      name: "officeNumber",
-      message: "This team's office number?",
-     default : "1"
-
+    } catch (err) {
+        // catching any errors
+        console.log(err);
     }
-  ])
-    .then(results => {
-      results.role = "Manager";
+};
 
-      const { name, id, email, officeNumber, role } = results;
-
-      const newEmployee = new Manager(name, id, email, officeNumber, role)
-
-      employeeList.push(newEmployee);
-
-      console.log("\nGreat! Now let's start adding employees! \n");
-
-      buildEmployeeList();
-
-    });
-
-}
-
-exitQuestions = () => {
-  console.log(employeeList);
-  render(employeeList);
-  console.log(render(employeeList));
-
-  fs.writeFile(outputPath, render(employeeList), function (err) {
-    if (err) return console.log(err);
-
-  });
-}
-
-init()
-
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+init();
