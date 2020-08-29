@@ -72,7 +72,7 @@ const startPromps = () => {
 
 async function init() {
     // welcoming user
-    console.log("Hi there! Welcome to Aiden's HTML Generator. Please follow the prompts to generate an html file displaying your team!")
+    console.log("welcome. Answer afew questions to create your teams html page!")
     try {
         // starting the prompts!
         await startPromps();
@@ -82,5 +82,14 @@ async function init() {
         console.log(err);
     }
 };
+exitQuestions = () => {
+  console.log(employeeList);
+  render(employeeList);
+  console.log(render(employeeList));
 
+  fs.writeFile(outputPath, render(employeeList), function (err) {
+    if (err) return console.log(err);
+
+  });
+}
 init();
