@@ -26,14 +26,14 @@ const startPromps = () => {
     return inquirer.prompt(questions.startQ).then((empRole) => {
         employee['role'] = empRole.role;
         // if they choose "Done!"
-        if (empRole.role === "Done!") {
+        if (empRole.role === "finished!") {
             // their team page will be rendered
             const teamPage = render(employees);
             // and written to the output folder
             fs.writeFile(outputPath, teamPage, (err) => {
                 if (err) throw err;
                 // sign off message
-                console.log("Successfully generated your Team Page Html! You will find it in the output folder under 'team.html'.");
+                console.log("Success!!!  find your complete HTML page sin the output folder under 'team.html'.");
             })
         // otherwise...
         } else {
@@ -80,16 +80,7 @@ async function init() {
     } catch (err) {
         // catching any errors
         console.log(err);
-    }
+    };
 };
-exitQuestions = () => {
-  console.log(employeeList);
-  render(employeeList);
-  console.log(render(employeeList));
 
-  fs.writeFile(outputPath, render(employeeList), function (err) {
-    if (err) return console.log(err);
-
-  });
-}
 init();
