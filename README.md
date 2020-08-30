@@ -27,12 +27,15 @@ In the command line, run: npm install.
 Tests
 In the command line, run: npm run test.
 
-Demo
+Demo/Screenshot
+
+Heres a screenshot of how the application looks while activated
+![picture](https://github.com/Bremah-mvp/Html-Generator/blob/master/assets/Annotation%202020-08-29%20224136.png)
 Gif of Full Demo
 
-To see a full demo, click here!
 
-                      Technologies 
+
+                      TECHNOLOGIES/TOOLS USED TO CREATE THE APP
  HTML /BOOTSTRAP
  As usual used some html to generate and design the user interface.
 
