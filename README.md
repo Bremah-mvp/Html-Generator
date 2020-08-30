@@ -18,7 +18,7 @@ Html Generator app is a command line application that helps a user generate a hu
 As a manager
 I want to generate a webpage that displays my team's basic info so that I have quick access to emails and GitHub profiles
 
-The application prompts the user for intormation about each team member, engineers and interns. When the user is finished building their team, the application will generate an HTML file that displays a team based on the information provided by the user.
+The application prompts the user for intormation about each team member, engineers and interns. When the user is finished building their team, the application will generate an HTML file that displays a team based on the information provided by the user. The html page generated can be found in the OUTPUT FOLDER SELECT TEAM.HTML and open in any browser.
 
 
 Installation
